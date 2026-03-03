@@ -3,7 +3,9 @@ import Resume from "../models/Resume.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import transporter from "../configs/transporter.js";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const generateToken = (userID) => {
   return jwt.sign({ userID }, process.env.JWT_SECRET, { expiresIn: "7d" });
@@ -92,8 +94,8 @@ export const forgotPassword = async (req, res) => {
     user.resetOtp = otp;
     user.resetOtpExpiry = new Date(Date.now() + 10 * 60 * 1000);
     await user.save();
-    await transporter.sendMail({
-      from: `"Resume Builder" <${process.env.EMAIL_USER}>`,
+    await resend.emails.send({
+      from: 'Resume Builder <onboarding@resend.dev>',
       to: email,
       subject: "Your Password Reset OTP",
       html: `
