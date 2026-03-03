@@ -7,24 +7,21 @@ import api from '../configs/api';
 import { toast } from 'react-hot-toast';
 import pdfToText from 'react-pdftotext';
 
+const ModalWrapper = ({ onClose, onSubmit, children }) => (
+  <form onSubmit={onSubmit} onClick={onClose}
+    className="fixed inset-0 z-50 flex items-center justify-center p-4"
+    style={{ background: 'rgba(15,13,26,0.75)', backdropFilter: 'blur(6px)' }}>
+    <div onClick={e => e.stopPropagation()}
+      className="relative w-full max-w-sm rounded-2xl p-7 shadow-2xl"
+      style={{ background: 'white', border: '1px solid #e5e7eb' }}>
+      {children}
+    </div>
+  </form>
+);
 
-
-
-
-  const ModalWrapper = ({ onClose, onSubmit, children }) => (
-    <form onSubmit={onSubmit} onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: 'rgba(15,13,26,0.75)', backdropFilter: 'blur(6px)' }}>
-      <div onClick={e => e.stopPropagation()}
-        className="relative w-full max-w-sm rounded-2xl p-7 shadow-2xl"
-        style={{ background: 'white', border: '1px solid #e5e7eb' }}>
-        {children}
-      </div>
-    </form>
-  );
 const DashBoard = () => {
 
-  const { user, token } = useSelector((state) => state.auth)
+  const { user } = useSelector((state) => state.auth)
 
   const colors = [
     "#3A86FF", "#8338EC", "#FF006E", "#FB5607",
@@ -43,7 +40,7 @@ const DashBoard = () => {
 
   const loadAllResumes = async () => {
     try {
-      const { data } = await api.get('/api/users/resumes', { headers: { Authorization: token } });
+      const { data } = await api.get('/api/users/resumes');
       setAllResumes(data.resumes);
     } catch (error) {
       console.error(error);
@@ -54,7 +51,7 @@ const DashBoard = () => {
   const createResume = async (e) => {
     try {
       e.preventDefault()
-      const { data } = await api.post('/api/resumes/create', { title }, { headers: { Authorization: token } })
+      const { data } = await api.post('/api/resumes/create', { title })
       setAllResumes([...allResumes, data.resume])
       setTitle("")
       setShowCreateResumes(false)
@@ -69,7 +66,7 @@ const DashBoard = () => {
     setLoading(true)
     try {
       const resumeText = await pdfToText(resume)
-      const { data } = await api.post('/api/ai/upload-resume', { title, resumeText }, { headers: { Authorization: token } })
+      const { data } = await api.post('/api/ai/upload-resume', { title, resumeText })
       setTitle("")
       setResume(null)
       setShowUploadResumes(false)
@@ -83,7 +80,7 @@ const DashBoard = () => {
   const editTitle = async (e) => {
     try {
       e.preventDefault()
-      const { data } = await api.put(`/api/resumes/update/`, { resumeId: editResume, resumeData: { title } }, { headers: { Authorization: token } })
+      const { data } = await api.put(`/api/resumes/update/`, { resumeId: editResume, resumeData: { title } })
       setAllResumes(allResumes.map(resume => resume._id === editResume ? { ...resume, title } : resume))
       setTitle("")
       setEditResume('')
@@ -97,7 +94,7 @@ const DashBoard = () => {
     try {
       const confirmDelete = window.confirm("Are you sure you want to delete this resume?")
       if (confirmDelete) {
-        const { data } = await api.delete(`/api/resumes/delete/${resumeId}`, { headers: { Authorization: token } })
+        const { data } = await api.delete(`/api/resumes/delete/${resumeId}`)
         setAllResumes(allResumes.filter(resume => resume._id !== resumeId))
         toast.success(data.message)
       }
@@ -107,10 +104,8 @@ const DashBoard = () => {
   }
 
   useEffect(() => {
-    if (token) loadAllResumes();
-  }, [token]);
-
-
+    loadAllResumes();
+  }, []);
 
   const inputClass = "w-full px-4 py-2.5 rounded-xl border border-zinc-200 bg-zinc-50 text-sm text-zinc-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all placeholder:text-zinc-400 mb-4";
 
@@ -135,28 +130,21 @@ const DashBoard = () => {
             <p className="text-2xl font-semibold text-zinc-800 sm:hidden">
               Welcome, <span className="text-indigo-600">{user?.name}</span>
             </p>
-            <h1 className="hidden sm:block text-3xl font-bold text-zinc-800 mb-1">
-              My Resumes
-            </h1>
+            <h1 className="hidden sm:block text-3xl font-bold text-zinc-800 mb-1">My Resumes</h1>
             <p className="hidden sm:block text-sm text-zinc-400">Create, upload and manage your resumes</p>
           </div>
 
           {/* Action Buttons */}
           <div className="flex gap-3 mb-8 fade-up" style={{ animationDelay: '60ms' }}>
-            <button
-              onClick={() => setShowCreateResumes(true)}
+            <button onClick={() => setShowCreateResumes(true)}
               className="group flex items-center gap-2.5 px-5 py-2.5 rounded-xl text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95 transition-all duration-200"
-              style={{ background: 'linear-gradient(135deg, #6366f1, #4f46e5)' }}
-            >
+              style={{ background: 'linear-gradient(135deg, #6366f1, #4f46e5)' }}>
               <PlusIcon className="size-4 group-hover:rotate-90 transition-transform duration-300" />
               Create Resume
             </button>
-
-            <button
-              onClick={() => setShowUploadResumes(true)}
+            <button onClick={() => setShowUploadResumes(true)}
               className="group flex items-center gap-2.5 px-5 py-2.5 rounded-xl text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95 transition-all duration-200"
-              style={{ background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)' }}
-            >
+              style={{ background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)' }}>
               <UploadCloudIcon className="size-4 group-hover:-translate-y-0.5 transition-transform duration-200" />
               Upload Resume
             </button>
@@ -177,53 +165,29 @@ const DashBoard = () => {
               {allResumes.map((resume, index) => {
                 const color = colors[index % colors.length];
                 return (
-                  <button
-                    key={index}
-                    onClick={() => navigate(`/app/builder/${resume._id}`)}
+                  <div key={index} onClick={() => navigate(`/app/builder/${resume._id}`)}
                     className="resume-card fade-up relative flex flex-col items-center justify-center rounded-2xl p-4 h-44 border text-left cursor-pointer group"
-                    style={{
-                      background: `linear-gradient(145deg, ${color}12, ${color}30)`,
-                      borderColor: color + '35',
-                      animationDelay: `${index * 60}ms`
-                    }}
-                  >
-                    {/* Icon */}
+                    style={{ background: `linear-gradient(145deg, ${color}12, ${color}30)`, borderColor: color + '35', animationDelay: `${index * 60}ms` }}>
                     <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-3" style={{ background: color + '20' }}>
                       <FilePenLineIcon className="size-5" style={{ color }} />
                     </div>
-
-                    {/* Title */}
-                    <p className="text-xs font-semibold text-center leading-snug px-1 line-clamp-2" style={{ color }}>
-                      {resume.title}
-                    </p>
-
-                    {/* Date */}
+                    <p className="text-xs font-semibold text-center leading-snug px-1 line-clamp-2" style={{ color }}>{resume.title}</p>
                     <p className="absolute bottom-2.5 text-[9px] font-medium" style={{ color: color + 'bb' }}>
                       {new Date(resume.updatedAt).toLocaleDateString()}
                     </p>
-
-                    {/* Action buttons */}
-                    <div
-                      onClick={e => e.stopPropagation()}
+                    <div onClick={e => e.stopPropagation()}
                       className="action-btns absolute top-2 right-2 flex items-center gap-0.5 rounded-lg overflow-hidden"
-                      style={{ background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(4px)' }}
-                    >
-                      <button
-                        onClick={() => { setEditResume(resume._id); setTitle(resume.title) }}
-                        className="p-1.5 hover:bg-white transition-colors rounded-l-lg"
-                        title="Rename"
-                      >
+                      style={{ background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(4px)' }}>
+                      <button onClick={() => { setEditResume(resume._id); setTitle(resume.title) }}
+                        className="p-1.5 hover:bg-white transition-colors rounded-l-lg" title="Rename">
                         <PencilIcon className="size-3 text-zinc-600" />
                       </button>
-                      <button
-                        onClick={() => deleteResume(resume._id)}
-                        className="p-1.5 hover:bg-red-50 transition-colors rounded-r-lg"
-                        title="Delete"
-                      >
+                      <button onClick={() => deleteResume(resume._id)}
+                        className="p-1.5 hover:bg-red-50 transition-colors rounded-r-lg" title="Delete">
                         <TrashIcon className="size-3 text-red-500" />
                       </button>
                     </div>
-                  </button>
+                  </div>
                 );
               })}
             </div>
@@ -242,14 +206,8 @@ const DashBoard = () => {
             </div>
             <h2 className="text-lg font-semibold text-zinc-800 mb-1">Create New Resume</h2>
             <p className="text-xs text-zinc-400 mb-5">Give your resume a title to get started</p>
-            <input
-              onChange={(e) => setTitle(e.target.value)}
-              value={title}
-              type="text"
-              placeholder="e.g. Software Engineer Resume"
-              className={inputClass}
-              required
-            />
+            <input onChange={(e) => setTitle(e.target.value)} value={title} type="text"
+              placeholder="e.g. Software Engineer Resume" className={inputClass} required />
             <button className="w-full py-2.5 rounded-xl text-white text-sm font-semibold transition-all hover:opacity-90 active:scale-95"
               style={{ background: 'linear-gradient(135deg, #6366f1, #4f46e5)' }}>
               Create Resume
@@ -269,27 +227,14 @@ const DashBoard = () => {
             </div>
             <h2 className="text-lg font-semibold text-zinc-800 mb-1">Upload Resume</h2>
             <p className="text-xs text-zinc-400 mb-5">We'll parse your PDF and prefill the builder</p>
-            <input
-              onChange={(e) => setTitle(e.target.value)}
-              value={title}
-              type="text"
-              placeholder="e.g. My Uploaded Resume"
-              className={inputClass}
-              required
-            />
+            <input onChange={(e) => setTitle(e.target.value)} value={title} type="text"
+              placeholder="e.g. My Uploaded Resume" className={inputClass} required />
             <label htmlFor="resume-upload" className="block cursor-pointer mb-4">
               <div className={`flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-xl py-8 transition-colors ${resume ? 'border-violet-400 bg-violet-50' : 'border-zinc-200 hover:border-violet-300 hover:bg-violet-50/50'}`}>
                 {resume ? (
-                  <>
-                    <UploadCloud className="size-8 text-violet-500" />
-                    <p className="text-xs font-medium text-violet-600">{resume.name}</p>
-                  </>
+                  <><UploadCloud className="size-8 text-violet-500" /><p className="text-xs font-medium text-violet-600">{resume.name}</p></>
                 ) : (
-                  <>
-                    <UploadCloud className="size-8 text-zinc-300" />
-                    <p className="text-xs text-zinc-400">Click to upload your PDF resume</p>
-                    <p className="text-[10px] text-zinc-300">PDF, DOC, DOCX supported</p>
-                  </>
+                  <><UploadCloud className="size-8 text-zinc-300" /><p className="text-xs text-zinc-400">Click to upload your PDF resume</p><p className="text-[10px] text-zinc-300">PDF, DOC, DOCX supported</p></>
                 )}
               </div>
             </label>
@@ -315,14 +260,8 @@ const DashBoard = () => {
             </div>
             <h2 className="text-lg font-semibold text-zinc-800 mb-1">Rename Resume</h2>
             <p className="text-xs text-zinc-400 mb-5">Update the title of your resume</p>
-            <input
-              onChange={(e) => setTitle(e.target.value)}
-              value={title}
-              type="text"
-              placeholder="Enter new title"
-              className={inputClass}
-              required
-            />
+            <input onChange={(e) => setTitle(e.target.value)} value={title} type="text"
+              placeholder="Enter new title" className={inputClass} required />
             <button className="px-6 py-2.5 rounded-xl text-white text-sm font-semibold transition-all hover:opacity-90 active:scale-95"
               style={{ background: 'linear-gradient(135deg, #6366f1, #4f46e5)' }}>
               Update Title

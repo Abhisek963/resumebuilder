@@ -14,8 +14,16 @@ const UserSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
+    },
+    resetOtp: {
+        type: String,
+        default: null
+    },
+    resetOtpExpiry: {
+        type: Date,
+        default: null
     }
-}, { timestamps: true})
+}, { timestamps: true })
 
 UserSchema.methods.comparePassword = function(password) {
     return bcrypt.compareSync(password, this.password);
