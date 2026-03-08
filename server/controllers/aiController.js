@@ -89,12 +89,14 @@ export const enhanceJobDescription = async (req, res) => {
 export const uploadResume = async (req, res) => {
     try {
 
-        const {resumeText,title} = req.body;
+        const {resumeText: encodedText,title} = req.body;
         const userId = req.userID;
 
-        if (!resumeText) {
+        if (!encodedText) {
             return res.status(400).json({ error: "Resume text is required" });
         }
+        
+        const resumeText = decodeURIComponent(encodedText);
 
         const systemPrompt = "You are a helpful Ai assistant that extracts key information from resumes. The user will provide the text of their resume, and you will extract the information"
 
