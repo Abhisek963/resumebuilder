@@ -32,7 +32,12 @@ const Experience = ({data,onChange}) => {
             const {data: res} = await api.post('/api/ai/enhance-job-description', {userContent: prompt})
             updateExperience(index, "description", res.enhancedSummary)
         } catch (error) {
-            toast.error(error.response?.data?.message || error.message || "Something went wrong")
+            const errorMsg = error.response?.data?.message || error.message || "Something went wrong";
+            if (errorMsg && errorMsg.includes("403 status code")) {
+                toast.error("AI API Error: Your backend AI API Key is invalid or expired. Please check your Render environment variables.");
+            } else {
+                toast.error(errorMsg);
+            }
         } finally {
             setGeneratingIndex(-1)
         }

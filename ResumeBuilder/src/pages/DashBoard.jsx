@@ -74,7 +74,12 @@ const DashBoard = () => {
       setShowUploadResumes(false)
       navigate(`/app/builder/${data.resume._id}`)
     } catch (error) {
-      toast.error(error?.response?.data?.message || error?.response?.data?.error || error.message)
+      const errorMsg = error?.response?.data?.message || error?.response?.data?.error || error.message;
+      if (errorMsg && errorMsg.includes("403 status code")) {
+        toast.error("AI API Error: Your backend AI API Key is invalid or expired. Please check your Render environment variables.");
+      } else {
+        toast.error(errorMsg);
+      }
     }
     setLoading(false)
   }

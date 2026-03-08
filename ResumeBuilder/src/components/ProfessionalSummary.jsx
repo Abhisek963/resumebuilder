@@ -14,7 +14,12 @@ const ProfessionalSummary = ({data, onChange, setResumeData}) => {
       const response = await api.post('/api/ai/enhance-pro-summary', {userContent: prompt})
       setResumeData(prev => ({...prev, professional_summary: response.data.enhancedSummary}))
     } catch (error) {
-      toast.error(error.response?.data?.message || error.message || "Something went wrong")
+      const errorMsg = error.response?.data?.message || error.message || "Something went wrong";
+      if (errorMsg && errorMsg.includes("403 status code")) {
+        toast.error("AI API Error: Your backend AI API Key is invalid or expired. Please check your Render environment variables.");
+      } else {
+        toast.error(errorMsg);
+      }
     } finally {
       setIsGenerating(false)
     }
