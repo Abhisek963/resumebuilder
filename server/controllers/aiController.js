@@ -98,49 +98,46 @@ export const uploadResume = async (req, res) => {
 
         const systemPrompt = "You are a helpful Ai assistant that extracts key information from resumes. The user will provide the text of their resume, and you will extract the information"
 
-        const userPromt =`extract the following information from the resume:${resumeText} Provide me the data in the following JSON format with no additional text before or after : 
+        const userPromt =`Extract the following information from the resume: ${resumeText}. Provide me the data in the following exact JSON format with no additional text before or after: 
     {
-        professional_summary : {
-        type: String,
-        default: ""
-    },
-    skills : [{
-        type: String
-    }],
-    personal_info : {
-        image :{type: String, default: ""},
-        full_name : {type: String, default: ""},
-        profession : {type: String, default: ""},
-        email : {type: String, default: ""},
-        phone : {type: String, default: ""},
-        location : {type: String, default: ""},
-        linkedin : {type: String, default: ""},
-        website : {type: String, default: ""},
-    },
-    experience : [
-        {
-            company :{type: String},
-            position : {type: String},
-            start_date : {type: String},
-            end_date : {type: String},
-            description : {type: String},
-            is_current : {type: Boolean},
-        }
-    ],
-    projects: [
-        {
-            name: { type: String },
-            type: { type: String },
-            description: { type: String },
-        }
-    ],
-    education : [{
-        institution : {type: String},
-        degree : {type: String},
-        field: {type: String},
-        graduation_date : {type: String},
-        gpa : {type: String},
-    }]    
+        "professional_summary": "Extracted professional summary here (string, leave empty if not found)",
+        "skills": ["skill1", "skill2"],
+        "personal_info": {
+            "image": "",
+            "full_name": "Applicant's name",
+            "profession": "Their profession based on their summary/experience",
+            "email": "email@example.com",
+            "phone": "their phone number",
+            "location": "their location",
+            "linkedin": "linkedin URL",
+            "website": "portfolio or website URL"
+        },
+        "experience": [
+            {
+                "company": "Company Name",
+                "position": "Job Title",
+                "start_date": "Start Date",
+                "end_date": "End Date or Present",
+                "description": "Job description and achievements",
+                "is_current": false
+            }
+        ],
+        "projects": [
+            {
+                "name": "Project Name",
+                "type": "Project Type",
+                "description": "Project Description"
+            }
+        ],
+        "education": [
+            {
+                "institution": "University or School Name",
+                "degree": "Degree earned",
+                "field": "Field of Study",
+                "graduation_date": "Graduation Date",
+                "gpa": "GPA if available"
+            }
+        ]    
     }`
 
         const response = await ai.chat.completions.create({
@@ -159,7 +156,13 @@ export const uploadResume = async (req, res) => {
     }
         })
         
-        const extractedData = response.choices[0].message.content.trim();
+        let extractedData = response.choices[0].message.content.trim();
+        if (extractedData.startsWith("```json")) {
+            extractedData = extractedData.replace(/^```json/i, "").replace(/```$/, "").trim();
+        } else if (extractedData.startsWith("```")) {
+            extractedData = extractedData.replace(/^```/, "").replace(/```$/, "").trim();
+        }
+
         const parsedData = JSON.parse(extractedData);
         const newResume = await Resume.create({
             userId,...parsedData,title

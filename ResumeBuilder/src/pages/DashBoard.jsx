@@ -72,7 +72,7 @@ const DashBoard = () => {
       setShowUploadResumes(false)
       navigate(`/app/builder/${data.resume._id}`)
     } catch (error) {
-      toast.error(error?.response?.data?.message || error.message)
+      toast.error(error?.response?.data?.message || error?.response?.data?.error || error.message)
     }
     setLoading(false)
   }
@@ -234,11 +234,11 @@ const DashBoard = () => {
                 {resume ? (
                   <><UploadCloud className="size-8 text-violet-500" /><p className="text-xs font-medium text-violet-600">{resume.name}</p></>
                 ) : (
-                  <><UploadCloud className="size-8 text-zinc-300" /><p className="text-xs text-zinc-400">Click to upload your PDF resume</p><p className="text-[10px] text-zinc-300">PDF, DOC, DOCX supported</p></>
+                  <><UploadCloud className="size-8 text-zinc-300" /><p className="text-xs text-zinc-400">Click to upload your PDF resume</p><p className="text-[10px] text-zinc-300">PDF supported</p></>
                 )}
               </div>
             </label>
-            <input type="file" id="resume-upload" accept=".pdf,.doc,.docx" hidden onChange={(e) => setResume(e.target.files[0])} />
+            <input type="file" id="resume-upload" accept=".pdf" hidden onChange={(e) => setResume(e.target.files[0])} />
             <button disabled={loading}
               className="w-full py-2.5 rounded-xl text-white text-sm font-semibold flex items-center justify-center gap-2 transition-all hover:opacity-90 active:scale-95 disabled:opacity-70"
               style={{ background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)' }}>
