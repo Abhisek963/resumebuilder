@@ -69,6 +69,9 @@ const DashBoard = () => {
       // Encode resume text to bypass WAF or proxy filters that block suspicious JSON payloads
       const encodedResumeText = encodeURIComponent(resumeText);
       const { data } = await api.post('/api/ai/upload-resume', { title, resumeText: encodedResumeText })
+      if (data.warning) {
+        toast.error(data.warning, { duration: 6000 });
+      }
       setTitle("")
       setResume(null)
       setShowUploadResumes(false)

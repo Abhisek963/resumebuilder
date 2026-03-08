@@ -142,34 +142,45 @@ export const uploadResume = async (req, res) => {
         ]    
     }`
 
-        const response = await ai.chat.completions.create({
-            model: process.env.OPENAI_MODEL || "gpt-4o",
-            messages: [
-        {   role: "system",
-            content: systemPrompt 
-        },
-        {
-            role: "user",
-            content: userPromt,
-        },
-    ],
-    response_format: {
-        type: "json_object",
-    }
-        })
-        
-        let extractedData = response.choices[0].message.content.trim();
-        if (extractedData.startsWith("```json")) {
-            extractedData = extractedData.replace(/^```json/i, "").replace(/```$/, "").trim();
-        } else if (extractedData.startsWith("```")) {
-            extractedData = extractedData.replace(/^```/, "").replace(/```$/, "").trim();
+        let parsedData = {};
+        try {
+            const response = await ai.chat.completions.create({
+                model: process.env.OPENAI_MODEL || "gpt-4o",
+                messages: [
+            {   role: "system",
+                content: systemPrompt 
+            },
+            {
+                role: "user",
+                content: userPromt,
+            },
+        ],
+        response_format: {
+            type: "json_object",
         }
+            })
+            
+            let extractedData = response.choices[0].message.content.trim();
+            if (extractedData.startsWith("```json")) {
+                extractedData = extractedData.replace(/^```json/i, "").replace(/```$/, "").trim();
+            } else if (extractedData.startsWith("```")) {
+                extractedData = extractedData.replace(/^```/, "").replace(/```$/, "").trim();
+            }
 
-        const parsedData = JSON.parse(extractedData);
+            parsedData = JSON.parse(extractedData);
+        } catch (aiError) {
+            console.error("AI Extraction Error:", aiError.message);
+            // Fallback: continue creating a blank resume even if AI parsing fails due to Invalid API key.
+        }
         const newResume = await Resume.create({
             userId,...parsedData,title
         })
-        res.status(201).json({ resume: newResume });
+        
+        const hasData = Object.keys(parsedData).length > 0;
+        res.status(201).json({ 
+            resume: newResume, 
+            warning: hasData ? null : "AI parsing failed due to your backend API key being invalid. A blank resume was created instead."
+        });
 
     } catch (error) {
         return res.status(500).json({ error: error.message });
