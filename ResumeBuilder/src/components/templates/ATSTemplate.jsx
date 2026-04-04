@@ -1,271 +1,130 @@
 import React from "react";
-import { Mail, Phone, MapPin, Linkedin, Globe } from "lucide-react";
 
-const ATSTemplate = ({ data, accentColor }) => {
-  const formatDate = (dateStr) => {
-    if (!dateStr) return "";
-    const [year, month] = dateStr.split("-");
-    return new Date(year, month - 1).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-    });
-  };
-
+const ATSTemplate = ({ data }) => {
   return (
-    <div className="max-w-4xl mx-auto bg-white text-gray-900 px-10 py-8 leading-relaxed" style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}>
+    <div className="max-w-4xl mx-auto bg-white text-black p-8 font-sans">
 
       {/* ================= HEADER ================= */}
-      <header className="mb-4">
-        <div className="flex justify-between items-start">
-          {/* Left: Name + links */}
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-1">
-              {data.personal_info?.full_name || "Your Name"}
-            </h1>
-            {data.personal_info?.linkedin && (
-              <div className="flex items-center gap-1 text-sm mb-0.5" style={{ color: accentColor }}>
-                <Linkedin className="size-3.5" />
-                <span>{data.personal_info.linkedin}</span>
-              </div>
-            )}
-            {data.personal_info?.website && (
-              <div className="flex items-center gap-1 text-sm" style={{ color: accentColor }}>
-                <Globe className="size-3.5" />
-                <span>{data.personal_info.website}</span>
-              </div>
-            )}
-          </div>
-
-          {/* Right: Email + Phone */}
-          <div className="text-sm text-gray-700 text-right space-y-1 mt-1">
-            {data.personal_info?.email && (
-              <div className="flex items-center justify-end gap-1.5">
-                <span>Email: {data.personal_info.email}</span>
-              </div>
-            )}
-            {data.personal_info?.phone && (
-              <div className="flex items-center justify-end gap-1.5">
-                <span>Mobile: {data.personal_info.phone}</span>
-              </div>
-            )}
-            {data.personal_info?.location && (
-              <div className="flex items-center justify-end gap-1.5">
-                <span>{data.personal_info.location}</span>
-              </div>
-            )}
-          </div>
+      <div className="flex justify-between items-start border-b pb-4">
+        <div>
+          <h1 className="text-2xl font-bold">
+            {data.personal_info?.full_name}
+          </h1>
+          <p className="text-sm text-blue-600">
+            {data.personal_info?.linkedin}
+          </p>
+          <p className="text-sm text-blue-600">
+            {data.personal_info?.github}
+          </p>
         </div>
-      </header>
 
-      <hr className="border-gray-400 mb-5" />
+        <div className="text-right text-sm">
+          <p>{data.personal_info?.email}</p>
+          <p>{data.personal_info?.phone}</p>
+        </div>
+      </div>
 
       {/* ================= EDUCATION ================= */}
-      {data.education?.length > 0 && (
-        <section className="mb-5">
-          <h2 className="text-sm font-bold text-center uppercase tracking-widest text-gray-900 mb-3">
-            Education
-          </h2>
-          <hr className="border-gray-300 mb-3" />
+      <SectionTitle title="EDUCATION" />
 
-          <div className="space-y-3">
-            {data.education.map((edu, index) => (
-              <div key={index} className="flex justify-between items-start">
-                <div>
-                  <p className="font-bold text-gray-900 text-sm">{edu.institution}</p>
-                  <p className="text-sm text-gray-700">
-                    {edu.degree}{edu.field ? ` in ${edu.field}` : ""}
-                    {edu.gpa ? `; GPA: ${edu.gpa}` : ""}
-                  </p>
-                </div>
-                <div className="text-right text-sm text-gray-700 shrink-0 ml-4">
-                  <p className="font-semibold">{edu.location || ""}</p>
-                  <p>{formatDate(edu.start_date)} {edu.start_date && "- "}{formatDate(edu.graduation_date)}</p>
-                </div>
-              </div>
-            ))}
+      {data.education?.map((edu, i) => (
+        <div key={i} className="flex justify-between mt-2">
+          <div>
+            <p className="font-semibold">{edu.institution}</p>
+            <p className="text-sm">
+              {edu.degree} ({edu.field}) ; GPA: {edu.gpa}
+            </p>
           </div>
-        </section>
-      )}
-
-      <hr className="border-gray-300 mb-5" />
+          <div className="text-right text-sm">
+            <p>{edu.location}</p>
+            <p>{edu.start_year} - {edu.end_year}</p>
+          </div>
+        </div>
+      ))}
 
       {/* ================= SKILLS ================= */}
-      {data.skills?.length > 0 && (
-        <section className="mb-5">
-          <h2 className="text-sm font-bold text-center uppercase tracking-widest text-gray-900 mb-3">
-            Skills Summary
-          </h2>
-          <hr className="border-gray-300 mb-3" />
+      <SectionTitle title="SKILLS SUMMARY" />
 
-          {data.skill_categories ? (
-            <div className="space-y-1.5 text-sm">
-              {Object.entries(data.skill_categories).map(([cat, skills], i) => (
-                <div key={i} className="flex gap-2">
-                  <span className="font-bold text-gray-900 w-28 shrink-0">• {cat}:</span>
-                  <span className="text-gray-700">{Array.isArray(skills) ? skills.join(", ") : skills}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-1.5 text-sm">
-              <div className="flex gap-2">
-                <span className="font-bold text-gray-900 w-28 shrink-0">• Skills:</span>
-                <span className="text-gray-700">{data.skills.join(", ")}</span>
-              </div>
-            </div>
-          )}
-        </section>
-      )}
-
-      <hr className="border-gray-300 mb-5" />
+      <div className="text-sm space-y-1">
+        <p><b>Languages:</b> {data.skills?.languages}</p>
+        <p><b>Frameworks:</b> {data.skills?.frameworks}</p>
+        <p><b>Tools:</b> {data.skills?.tools}</p>
+        <p><b>Platforms:</b> {data.skills?.platforms}</p>
+        <p><b>Soft Skills:</b> {data.skills?.soft}</p>
+      </div>
 
       {/* ================= EXPERIENCE ================= */}
-      {data.experience?.length > 0 && (
-        <section className="mb-5">
-          <h2 className="text-sm font-bold text-center uppercase tracking-widest text-gray-900 mb-3">
-            Work Experience
-          </h2>
-          <hr className="border-gray-300 mb-3" />
+      <SectionTitle title="WORK EXPERIENCE" />
 
-          <div className="space-y-4">
-            {data.experience.map((exp, index) => (
-              <div key={index}>
-                <div className="flex justify-between items-start mb-1">
-                  <div>
-                    <span className="font-bold text-gray-900 text-sm">
-                      {exp.position}
-                    </span>
-                    {exp.company && (
-                      <span className="text-sm text-gray-700"> | {exp.company}</span>
-                    )}
-                    {exp.link && (
-                      <span className="text-sm ml-1" style={{ color: accentColor }}> | <a href={exp.link} style={{ color: accentColor }}>LINK</a></span>
-                    )}
-                  </div>
-                  <span className="text-sm text-gray-700 shrink-0 ml-4">
-                    {formatDate(exp.start_date)}{exp.start_date && " - "}{exp.is_current ? "Present" : formatDate(exp.end_date)}
-                  </span>
-                </div>
-
-                {exp.description && (
-                  <ul className="mt-1 space-y-1">
-                    {exp.description.split("\n").filter(l => l.trim()).map((line, i) => (
-                      <li key={i} className="text-sm text-gray-700 flex gap-2">
-                        <span className="shrink-0 mt-0.5">○</span>
-                        <span>{line.replace(/^[-•○]\s*/, "")}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            ))}
+      {data.experience?.map((exp, i) => (
+        <div key={i} className="mt-2">
+          <div className="flex justify-between">
+            <p className="font-semibold">
+              {exp.role} | {exp.company}
+            </p>
+            <p className="text-sm">{exp.duration}</p>
           </div>
-        </section>
-      )}
 
-      <hr className="border-gray-300 mb-5" />
+          <ul className="list-disc ml-5 text-sm mt-1">
+            {exp.points?.map((p, idx) => (
+              <li key={idx}>{p}</li>
+            ))}
+          </ul>
+        </div>
+      ))}
 
       {/* ================= PROJECTS ================= */}
-      {data.projects?.length > 0 && (
-        <section className="mb-5">
-          <h2 className="text-sm font-bold text-center uppercase tracking-widest text-gray-900 mb-3">
-            Projects
-          </h2>
-          <hr className="border-gray-300 mb-3" />
+      <SectionTitle title="PROJECTS" />
 
-          <div className="space-y-4">
-            {data.projects.map((proj, index) => (
-              <div key={index}>
-                <div className="flex justify-between items-start mb-1">
-                  <div>
-                    <span className="font-bold text-gray-900 text-sm">{proj.name}</span>
-                    {proj.link && (
-                      <span className="text-sm ml-1" style={{ color: accentColor }}>| <a href={proj.link} style={{ color: accentColor }}>LINK</a></span>
-                    )}
-                  </div>
-                  {(proj.start_date || proj.end_date) && (
-                    <span className="text-sm text-gray-700 shrink-0 ml-4">
-                      {formatDate(proj.start_date)}{proj.start_date && proj.end_date && " - "}{formatDate(proj.end_date)}
-                    </span>
-                  )}
-                </div>
-
-                {proj.description && (
-                  <ul className="mt-1 space-y-1">
-                    {proj.description.split("\n").filter(l => l.trim()).map((line, i) => (
-                      <li key={i} className="text-sm text-gray-700 flex gap-2">
-                        <span className="shrink-0 mt-0.5">○</span>
-                        <span>{line.replace(/^[-•○]\s*/, "")}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* ================= PROFESSIONAL SUMMARY ================= */}
-      {data.professional_summary && (
-        <>
-          <hr className="border-gray-300 mb-5" />
-          <section className="mb-5">
-            <h2 className="text-sm font-bold text-center uppercase tracking-widest text-gray-900 mb-3">
-              Professional Summary
-            </h2>
-            <hr className="border-gray-300 mb-3" />
-            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
-              {data.professional_summary}
+      {data.projects?.map((proj, i) => (
+        <div key={i} className="mt-2">
+          <div className="flex justify-between">
+            <p className="font-semibold">
+              {proj.name} | LINK
             </p>
-          </section>
-        </>
-      )}
+            <p className="text-sm">{proj.duration}</p>
+          </div>
+
+          <ul className="list-disc ml-5 text-sm mt-1">
+            {proj.points?.map((p, idx) => (
+              <li key={idx}>{p}</li>
+            ))}
+          </ul>
+        </div>
+      ))}
 
       {/* ================= CERTIFICATIONS ================= */}
-      {data.certifications?.length > 0 && (
-        <>
-          <hr className="border-gray-300 mb-5" />
-          <section className="mb-5">
-            <h2 className="text-sm font-bold text-center uppercase tracking-widest text-gray-900 mb-3">
-              Certificates
-            </h2>
-            <hr className="border-gray-300 mb-3" />
+      <SectionTitle title="CERTIFICATES" />
 
-            <div className="space-y-3">
-              {data.certifications.map((cert, index) => (
-                <div key={index}>
-                  <div className="flex justify-between items-start mb-1">
-                    <div>
-                      <span className="font-bold text-gray-900 text-sm">{cert.name}</span>
-                      {cert.issuer && <span className="text-sm text-gray-700"> ({cert.issuer})</span>}
-                      {cert.link && (
-                        <span className="text-sm ml-1" style={{ color: accentColor }}>| <a href={cert.link} style={{ color: accentColor }}>CERTIFICATE</a></span>
-                      )}
-                    </div>
-                    {cert.date && (
-                      <span className="text-sm text-gray-700 shrink-0 ml-4">{formatDate(cert.date)}</span>
-                    )}
-                  </div>
-                  {cert.description && (
-                    <ul className="mt-1 space-y-1">
-                      {cert.description.split("\n").filter(l => l.trim()).map((line, i) => (
-                        <li key={i} className="text-sm text-gray-700 flex gap-2">
-                          <span className="shrink-0 mt-0.5">○</span>
-                          <span>{line.replace(/^[-•○]\s*/, "")}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-        </>
-      )}
+      {data.certificates?.map((cert, i) => (
+        <div key={i} className="mt-2">
+          <div className="flex justify-between">
+            <p className="font-semibold">
+              {cert.name} | CERTIFICATE
+            </p>
+            <p className="text-sm">{cert.date}</p>
+          </div>
+
+          <ul className="list-disc ml-5 text-sm mt-1">
+            {cert.points?.map((p, idx) => (
+              <li key={idx}>{p}</li>
+            ))}
+          </ul>
+        </div>
+      ))}
 
     </div>
   );
 };
+
+/* ================= REUSABLE TITLE ================= */
+const SectionTitle = ({ title }) => (
+  <div className="mt-6 mb-2">
+    <h2 className="text-center font-bold text-sm tracking-widest">
+      {title}
+    </h2>
+    <div className="border-t mt-1"></div>
+  </div>
+);
 
 export default ATSTemplate;
