@@ -55,6 +55,16 @@ const ATSTemplate = ({ data }) => {
         </div>
       </header>
 
+      {/* ================= PROFESSIONAL SUMMARY ================= */}
+      {data.professional_summary && (
+        <section>
+          <SectionHeader title="Professional Summary" />
+          <p className="text-sm leading-relaxed">
+            {data.professional_summary}
+          </p>
+        </section>
+      )}
+
       {/* ================= EDUCATION ================= */}
       {data.education?.length > 0 && (
         <section>
@@ -168,45 +178,6 @@ const ATSTemplate = ({ data }) => {
                     </li>
                   ))}
               </ul>
-            </div>
-          ))}
-        </section>
-      )}
-
-      {/* ================= CERTIFICATIONS ================= */}
-      {data.certifications?.length > 0 && (
-        <section>
-          <SectionHeader title="Certificates" />
-
-          {data.certifications.map((cert, i) => (
-            <div key={i} className="mb-2">
-              <div className="flex justify-between">
-                <p className="font-semibold">
-                  {cert.name}
-                  {cert.issuer && ` (${cert.issuer})`}
-                  {cert.link && (
-                    <span className="text-blue-700 ml-1">
-                      | CERTIFICATE
-                    </span>
-                  )}
-                </p>
-                <p className="shrink-0 ml-4">
-                  {formatDate(cert.date)}
-                </p>
-              </div>
-
-              {cert.description && (
-                <ul className="mt-1 space-y-1">
-                  {cert.description.split("\n")
-                    .filter((l) => l.trim())
-                    .map((line, idx) => (
-                      <li key={idx} className="flex gap-2">
-                        <span>•</span>
-                        <span>{line.replace(/^[-•○]\s*/, "")}</span>
-                      </li>
-                    ))}
-                </ul>
-              )}
             </div>
           ))}
         </section>
