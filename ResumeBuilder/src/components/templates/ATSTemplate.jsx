@@ -20,7 +20,7 @@ const ATSTemplate = ({ data }) => {
   );
 
   return (
-    <div className="max-w-4xl mx-auto bg-white text-gray-900 px-8 py-6 leading-relaxed text-sm font-serif">
+    <div className="max-w-4xl mx-auto bg-white text-gray-900 px-8 py-6 text-sm leading-relaxed font-serif">
 
       {/* ================= HEADER ================= */}
       <header className="flex justify-between items-start mb-4">
@@ -59,9 +59,35 @@ const ATSTemplate = ({ data }) => {
       {data.professional_summary && (
         <section>
           <SectionHeader title="Professional Summary" />
-          <p className="text-sm leading-relaxed">
-            {data.professional_summary}
-          </p>
+          <p>{data.professional_summary}</p>
+        </section>
+      )}
+
+      {/* ================= SKILLS ================= */}
+      {(data.skill_categories || data.skills?.length > 0) && (
+        <section>
+          <SectionHeader title="Skills" />
+
+          {/* Categorized Skills */}
+          {data.skill_categories ? (
+            <div className="space-y-1">
+              {Object.entries(data.skill_categories).map(([cat, skills], i) => (
+                <div key={i} className="flex">
+                  <span className="font-semibold w-28 shrink-0">
+                    {cat}:
+                  </span>
+                  <span>
+                    {Array.isArray(skills)
+                      ? skills.join(", ")
+                      : skills}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            /* Flat Skills */
+            <p>{data.skills.join(", ")}</p>
+          )}
         </section>
       )}
 
@@ -89,28 +115,6 @@ const ATSTemplate = ({ data }) => {
               </div>
             </div>
           ))}
-        </section>
-      )}
-
-      {/* ================= SKILLS ================= */}
-      {data.skill_categories && (
-        <section>
-          <SectionHeader title="Skills Summary" />
-
-          <div className="space-y-1">
-            {Object.entries(data.skill_categories).map(([cat, skills], i) => (
-              <div key={i} className="flex">
-                <span className="font-semibold w-28 shrink-0">
-                  {cat}:
-                </span>
-                <span>
-                  {Array.isArray(skills)
-                    ? skills.join(", ")
-                    : skills}
-                </span>
-              </div>
-            ))}
-          </div>
         </section>
       )}
 
