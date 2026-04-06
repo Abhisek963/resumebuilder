@@ -185,7 +185,6 @@ export const uploadResume = async (req, res) => {
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }
-<<<<<<< HEAD
 }
 
 
@@ -243,6 +242,4 @@ Return ONLY the sentence.`,
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }
-=======
->>>>>>> e6dbd835ca97e36f3e0ad50a24fbe477fb4d783b
 }

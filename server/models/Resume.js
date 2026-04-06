@@ -53,58 +53,7 @@ const ResumeSchema = new mongoose.Schema({
             name: { type: String },
             type: { type: String },
             description: { type: String },
-<<<<<<< HEAD
             url: { type: String },
-=======
->>>>>>> e6dbd835ca97e36f3e0ad50a24fbe477fb4d783b
-        }
-    ],
-    education : [{
-        institution : {type: String},
-        degree : {type: String},
-        field: {type: String},
-        graduation_date : {type: String},
-        gpa : {type: String},
-<<<<<<< HEAD
-    }],
-
-    // ── CV-specific fields ──────────────────────────────────────────────────
-    mode: {
-        type: String,
-        enum: ['resume', 'cv'],
-        default: 'resume',
-    },
-    coursework: [{ type: String }],
-    achievements: [{
-        title:       { type: String },
-        description: { type: String },
-        year:        { type: String },
-    }],
-    certifications: [{
-        name:   { type: String },
-        issuer: { type: String },
-        date:   { type: String },
-        url:    { type: String },
-    }],
-    publications: [{
-        title:       { type: String },
-        authors:     { type: String },
-        venue:       { type: String },
-        year:        { type: String },
-        url:         { type: String },
-        description: { type: String },
-    }],
-    positions: [{
-        title:        { type: String },
-        organization: { type: String },
-        start_date:   { type: String },
-        end_date:     { type: String },
-        description:  { type: String },
-    }],
-
-=======
-    }]
->>>>>>> e6dbd835ca97e36f3e0ad50a24fbe477fb4d783b
 }, { timestamps: true, minimize: false })
 
 const Resume = mongoose.model("Resume", ResumeSchema);

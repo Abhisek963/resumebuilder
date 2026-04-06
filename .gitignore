@@ -1,9 +1,5 @@
 node_modules/
 dist/
 build/
-<<<<<<< HEAD
 .DS_Store
 .env
-=======
-.DS_Store
->>>>>>> e6dbd835ca97e36f3e0ad50a24fbe477fb4d783b

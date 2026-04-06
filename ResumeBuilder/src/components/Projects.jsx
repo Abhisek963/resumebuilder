@@ -8,35 +8,7 @@ const Projects = ({data=[],onChange}) => {
         const newProjects ={
             name: "",
             type: "",
-<<<<<<< HEAD
             url: "",
-=======
->>>>>>> e6dbd835ca97e36f3e0ad50a24fbe477fb4d783b
-            description: "",
-            
-        };
-        onChange([...data, newProjects])
-    }
-
-    const removeProjects = (index) => {
-        const updated = data.filter((_, i)=> i !== index);
-        onChange(updated)
-    }
-
-    const updateProjects = (index,field,value) => {
-        const updated = [...data];
-        updated[index]= {...updated[index], [field]: value}
-        onChange(updated)
-    }
-
-
-
-
-
-<<<<<<< HEAD
-=======
-
->>>>>>> e6dbd835ca97e36f3e0ad50a24fbe477fb4d783b
   return (
         <div>
       <div className='flex items-center justify-between'>
@@ -61,14 +33,10 @@ const Projects = ({data=[],onChange}) => {
                     <div className='grid  gap-3'>
                         <input value={project.name || ""} onChange={(e)=>updateProjects(index,"name",e.target.value)} type='text' placeholder='Project Name' className='px-3 py-2 text-sm rounded-lg' />
                         
-<<<<<<< HEAD
                         <div className="flex gap-3">
                             <input value={project.type || ""} onChange={(e)=>updateProjects(index,"type",e.target.value)} type='text' placeholder='Project Type' className='px-3 py-2 text-sm rounded-lg w-1/2' />
                             <input value={project.url || ""} onChange={(e)=>updateProjects(index,"url",e.target.value)} type='text' placeholder='Project URL' className='px-3 py-2 text-sm rounded-lg w-1/2' />
                         </div>
-=======
-                        <input value={project.type || ""} onChange={(e)=>updateProjects(index,"type",e.target.value)} type='text' placeholder='Project Type' className='px-3 py-2 text-sm rounded-lg' />
->>>>>>> e6dbd835ca97e36f3e0ad50a24fbe477fb4d783b
                     
                         <textarea rows={4} value={project.description || ""} onChange={(e)=>updateProjects(index,"description",e.target.value)} placeholder='Project Description'  className='px-3 py-2 text-sm rounded-lg w-full resize-none' />
 

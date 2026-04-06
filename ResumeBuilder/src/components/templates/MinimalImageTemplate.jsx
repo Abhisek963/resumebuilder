@@ -60,7 +60,6 @@ const MinimalImageTemplate = ({ data, accentColor }) => {
             </div>
           </section>
 
-<<<<<<< HEAD
           {/* Certifications */}
           {data.certifications?.length > 0 && (
             <section className="mb-10">
@@ -79,8 +78,6 @@ const MinimalImageTemplate = ({ data, accentColor }) => {
             </section>
           )}
 
-=======
->>>>>>> e6dbd835ca97e36f3e0ad50a24fbe477fb4d783b
           {/* Skills */}
           {data.skills?.length > 0 && (
             <section>

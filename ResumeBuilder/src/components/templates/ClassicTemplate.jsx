@@ -129,11 +129,7 @@ const ClassicTemplate = ({ data, accentColor }) => {
               {data.projects.map((proj, index) => (
                 <div key={index} className="pl-6 border-l-2" style={{ borderColor: accentColor + "40" }}>
                   <h3 className="font-semibold text-zinc-900">
-<<<<<<< HEAD
                     {proj.name}{proj.url && <a href={proj.url} target="_blank" rel="noreferrer" className="ml-2 text-blue-600 underline font-normal tracking-normal" style={{ fontSize: "0.85em", textTransform: "none" }}>Link</a>}
-=======
-                    {proj.name}
->>>>>>> e6dbd835ca97e36f3e0ad50a24fbe477fb4d783b
                   </h3>
 
                   {proj.description && (
@@ -183,7 +179,6 @@ const ClassicTemplate = ({ data, accentColor }) => {
           </section>
         )}
 
-<<<<<<< HEAD
         {/* ================= CERTIFICATIONS ================= */}
         {data.certifications?.length > 0 && (
           <section className="mb-10">
@@ -215,8 +210,6 @@ const ClassicTemplate = ({ data, accentColor }) => {
           </section>
         )}
 
-=======
->>>>>>> e6dbd835ca97e36f3e0ad50a24fbe477fb4d783b
         {/* ================= SKILLS ================= */}
         {data.skills?.length > 0 && (
           <section>
