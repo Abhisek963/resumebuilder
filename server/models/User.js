@@ -1,0 +1,34 @@
+import mongoose from "mongoose";
+import bcrypt from "bcrypt";
+
+const UserSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    password: {
+        type: String,
+        required: true
+    },
+    resetOtp: {
+        type: String,
+        default: null
+    },
+    resetOtpExpiry: {
+        type: Date,
+        default: null
+    }
+}, { timestamps: true })
+
+UserSchema.methods.comparePassword = function(password) {
+    return bcrypt.compareSync(password, this.password);
+}
+
+const user = mongoose.model("User", UserSchema);
+
+export default user;
