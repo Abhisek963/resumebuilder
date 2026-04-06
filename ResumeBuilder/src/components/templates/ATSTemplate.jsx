@@ -63,6 +63,7 @@ const ATSTemplate = ({ data }) => {
         </section>
       )}
 
+<<<<<<< HEAD
       {/* ================= CERTIFICATIONS ================= */}
       {data.certifications?.length > 0 && (
         <section>
@@ -82,6 +83,8 @@ const ATSTemplate = ({ data }) => {
         </section>
       )}
 
+=======
+>>>>>>> e6dbd835ca97e36f3e0ad50a24fbe477fb4d783b
       {/* ================= SKILLS ================= */}
       {(data.skill_categories || data.skills?.length > 0) && (
         <section>
@@ -178,7 +181,11 @@ const ATSTemplate = ({ data }) => {
             <div key={i} className="mb-3">
               <div className="flex justify-between">
                 <p className="font-semibold">
+<<<<<<< HEAD
                   {proj.name}{proj.url && <a href={proj.url} target="_blank" rel="noreferrer" className="ml-2 text-blue-600 underline font-normal tracking-normal" style={{ fontSize: "0.85em", textTransform: "none" }}>Link</a>}
+=======
+                  {proj.name}
+>>>>>>> e6dbd835ca97e36f3e0ad50a24fbe477fb4d783b
                   {proj.link && (
                     <span className="text-blue-700 ml-1">
                       | LINK
@@ -209,4 +216,8 @@ const ATSTemplate = ({ data }) => {
   );
 };
 
+<<<<<<< HEAD
 export default ATSTemplate;
+=======
+export default ATSTemplate;
+>>>>>>> e6dbd835ca97e36f3e0ad50a24fbe477fb4d783b

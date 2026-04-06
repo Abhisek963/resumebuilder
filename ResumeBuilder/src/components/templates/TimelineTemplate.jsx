@@ -154,7 +154,11 @@ const TimelineTemplate = ({ data, accentColor }) => {
                 />
 
                 <h3 className="text-md font-semibold text-gray-900">
+<<<<<<< HEAD
                   {proj.name}{proj.url && <a href={proj.url} target="_blank" rel="noreferrer" className="ml-2 text-blue-600 underline font-normal tracking-normal" style={{ fontSize: "0.85em", textTransform: "none" }}>Link</a>}
+=======
+                  {proj.name}
+>>>>>>> e6dbd835ca97e36f3e0ad50a24fbe477fb4d783b
                 </h3>
 
                 {proj.type && (
@@ -209,6 +213,7 @@ const TimelineTemplate = ({ data, accentColor }) => {
         </section>
       )}
 
+<<<<<<< HEAD
       {/* ================= CERTIFICATIONS ================= */}
       {data.certifications && data.certifications.length > 0 && (
         <section className="mb-12">
@@ -255,6 +260,8 @@ const TimelineTemplate = ({ data, accentColor }) => {
         </section>
       )}
 
+=======
+>>>>>>> e6dbd835ca97e36f3e0ad50a24fbe477fb4d783b
       {/* ================= SKILLS ================= */}
       {data.skills && data.skills.length > 0 && (
         <section>

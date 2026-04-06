@@ -67,6 +67,7 @@ const CorporateTemplate = ({ data, accentColor }) => {
           {/* Divider */}
           <div className="h-px bg-zinc-700 my-10" />
 
+<<<<<<< HEAD
           {/* Certifications */}
           {data.certifications?.length > 0 && (
             <div>
@@ -86,6 +87,8 @@ const CorporateTemplate = ({ data, accentColor }) => {
             </div>
           )}
 
+=======
+>>>>>>> e6dbd835ca97e36f3e0ad50a24fbe477fb4d783b
           {/* Skills */}
           {data.skills?.length > 0 && (
             <div>
@@ -181,7 +184,11 @@ const CorporateTemplate = ({ data, accentColor }) => {
                 {data.projects.map((proj, i) => (
                   <div key={i}>
                     <h3 className="text-lg font-semibold">
+<<<<<<< HEAD
                       {proj.name}{proj.url && <a href={proj.url} target="_blank" rel="noreferrer" className="ml-2 text-blue-600 underline font-normal tracking-normal" style={{ fontSize: "0.85em", textTransform: "none" }}>Link</a>}
+=======
+                      {proj.name}
+>>>>>>> e6dbd835ca97e36f3e0ad50a24fbe477fb4d783b
                     </h3>
 
                     {proj.type && (

@@ -53,7 +53,10 @@ const ResumeSchema = new mongoose.Schema({
             name: { type: String },
             type: { type: String },
             description: { type: String },
+<<<<<<< HEAD
             url: { type: String },
+=======
+>>>>>>> e6dbd835ca97e36f3e0ad50a24fbe477fb4d783b
         }
     ],
     education : [{
@@ -62,6 +65,7 @@ const ResumeSchema = new mongoose.Schema({
         field: {type: String},
         graduation_date : {type: String},
         gpa : {type: String},
+<<<<<<< HEAD
     }],
 
     // ── CV-specific fields ──────────────────────────────────────────────────
@@ -98,6 +102,9 @@ const ResumeSchema = new mongoose.Schema({
         description:  { type: String },
     }],
 
+=======
+    }]
+>>>>>>> e6dbd835ca97e36f3e0ad50a24fbe477fb4d783b
 }, { timestamps: true, minimize: false })
 
 const Resume = mongoose.model("Resume", ResumeSchema);

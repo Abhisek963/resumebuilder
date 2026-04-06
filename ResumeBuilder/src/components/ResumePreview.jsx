@@ -6,16 +6,20 @@ import MinimalImageTemplate from './templates/MinimalImageTemplate'
 import CorporateTemplate from './templates/CorporateTemplate'
 import TimelineTemplate from './templates/TimelineTemplate'
 import ATSTemplate from './templates/ATSTemplate'
+<<<<<<< HEAD
 import CVTemplate from './templates/CVTemplate'
 import CVModernTemplate from './templates/CVModernTemplate'
 import CVProfessionalTemplate from './templates/CVProfessionalTemplate'
 import ATSElegantTemplate from './templates/ATSElegantTemplate'
 import ATSStrictTemplate from './templates/ATSStrictTemplate'
 import CVATSElegantTemplate from './templates/CVATSElegantTemplate'
+=======
+>>>>>>> e6dbd835ca97e36f3e0ad50a24fbe477fb4d783b
 
 const ResumePreview = ({data,template,accentColor,classes=""}) => {
 
     const renderTemplate = () => {
+<<<<<<< HEAD
         if (data?.mode === 'cv') {
             switch(template) {
                 case 'cv-modern':
@@ -30,6 +34,8 @@ const ResumePreview = ({data,template,accentColor,classes=""}) => {
             }
         }
 
+=======
+>>>>>>> e6dbd835ca97e36f3e0ad50a24fbe477fb4d783b
         switch(template){
             case "modern":
                 return <ModernTemplate data={data} accentColor={accentColor} />;
@@ -43,16 +49,20 @@ const ResumePreview = ({data,template,accentColor,classes=""}) => {
                 return <TimelineTemplate data={data}  accentColor={accentColor} />
             case "ats":
                 return <ATSTemplate data={data} accentColor={accentColor} />
+<<<<<<< HEAD
             case "ats-elegant":
                 return <ATSElegantTemplate data={data} accentColor={accentColor} />
             case "ats-strict":
                 return <ATSStrictTemplate data={data} accentColor={accentColor} />
+=======
+>>>>>>> e6dbd835ca97e36f3e0ad50a24fbe477fb4d783b
                 
             default:
                     return <ClassicTemplate data={data} accentColor={accentColor} />;
         }
     }
 
+<<<<<<< HEAD
 
   return (
     <div className='w-full bg-gray-300'>
@@ -85,6 +95,10 @@ const ResumePreview = ({data,template,accentColor,classes=""}) => {
             ` : ''}
           `}
         </style>
+=======
+  return (
+    <div className='w-full bg-gray-300'>
+>>>>>>> e6dbd835ca97e36f3e0ad50a24fbe477fb4d783b
         <div id='resume-preview' className={"border border-gray-200 print:shadow-none print:border-none " + classes}>
             {renderTemplate() }
         </div>

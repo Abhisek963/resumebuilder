@@ -108,7 +108,11 @@ const ModernTemplate = ({ data, accentColor }) => {
 
 									<div className="flex justify-between items-start">
 										<div>
+<<<<<<< HEAD
 											<h3 className="text-lg font-medium text-gray-900">{p.name}{p.url && <a href={p.url} target="_blank" rel="noreferrer" className="ml-2 text-blue-600 underline font-normal tracking-normal" style={{ fontSize: "0.85em", textTransform: "none" }}>Link</a>}</h3>
+=======
+											<h3 className="text-lg font-medium text-gray-900">{p.name}</h3>
+>>>>>>> e6dbd835ca97e36f3e0ad50a24fbe477fb4d783b
 										</div>
 									</div>
 									{p.description && (
@@ -122,6 +126,7 @@ const ModernTemplate = ({ data, accentColor }) => {
 					</section>
 				)}
 
+<<<<<<< HEAD
 				{/* Certifications */}
 				{data.certifications && data.certifications.length > 0 && (
 					<section className="mb-8">
@@ -147,6 +152,8 @@ const ModernTemplate = ({ data, accentColor }) => {
 					</section>
 				)}
 
+=======
+>>>>>>> e6dbd835ca97e36f3e0ad50a24fbe477fb4d783b
 				<div className="grid sm:grid-cols-2 gap-8">
 					{/* Education */}
 					{data.education && data.education.length > 0 && (

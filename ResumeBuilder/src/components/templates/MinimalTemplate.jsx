@@ -96,7 +96,11 @@ const MinimalTemplate = ({ data, accentColor }) => {
             {data.projects.map((proj, index) => (
               <div key={index}>
                 <h3 className="text-lg font-medium">
+<<<<<<< HEAD
                   {proj.name}{proj.url && <a href={proj.url} target="_blank" rel="noreferrer" className="ml-2 text-blue-600 underline font-normal tracking-normal" style={{ fontSize: "0.85em", textTransform: "none" }}>Link</a>}
+=======
+                  {proj.name}
+>>>>>>> e6dbd835ca97e36f3e0ad50a24fbe477fb4d783b
                 </h3>
 
                 {proj.description && (
@@ -141,6 +145,7 @@ const MinimalTemplate = ({ data, accentColor }) => {
         </section>
       )}
 
+<<<<<<< HEAD
       {/* ================= CERTIFICATIONS ================= */}
       {data.certifications?.length > 0 && (
         <section className="mb-14">
@@ -172,6 +177,8 @@ const MinimalTemplate = ({ data, accentColor }) => {
         </section>
       )}
 
+=======
+>>>>>>> e6dbd835ca97e36f3e0ad50a24fbe477fb4d783b
       {/* ================= SKILLS ================= */}
       {data.skills?.length > 0 && (
         <section>

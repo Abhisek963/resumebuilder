@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Check, FileText, Layout } from 'lucide-react'
 import React from 'react'
 import { useState } from 'react'
@@ -7,12 +8,24 @@ const TemplateSelector = ({selectedTemplate, onChange, isCV = false}) => {
     const [isOpen, setIsOpen] = useState(false)
 
     const resumeTemplates = [
+=======
+import { Check, Layout } from 'lucide-react'
+import React from 'react'
+import { useState } from 'react'
+
+const TemplateSelector = ({selectedTemplate, onChange}) => {
+
+    const [isOpen, setIsOpen] = useState(false)
+
+    const templates = [
+>>>>>>> e6dbd835ca97e36f3e0ad50a24fbe477fb4d783b
         {id: 'classic', name: 'Classic', preview: "A timeless design with a clean layout, suitable for all industries."},
         {id: 'modern', name: 'Modern', preview: "A sleek and contemporary design with bold headings and ample white space."},
         {id: 'minimal', name: 'Minimal', preview: "A clean and simple design with minimal visual elements."},
         {id: 'minimal-image', name: 'Minimal with Image', preview: "A minimal design that includes a profile image."},
         {id: "corporate", name: 'Corporate', preview: "A structured and professional two-column layout ideal for corporate roles."},
         {id: 'timeline', name: 'Timeline', preview: "A modern timeline-based layout highlighting experience progression." },
+<<<<<<< HEAD
         {id: 'ats', name: 'ATS Classic', preview: "A clean, parser-friendly layout optimized to pass Applicant Tracking Systems." },
         {id: 'ats-elegant', name: 'ATS Elegant', preview: "An elegant yet fully ATS-compliant design with subtle stylistic touches." },
         {id: 'ats-strict', name: 'ATS Strict', preview: "A hyper-minimalist, plain-text style layout guaranteed to accurately parse on any system." }
@@ -26,6 +39,11 @@ const TemplateSelector = ({selectedTemplate, onChange, isCV = false}) => {
     ];
 
     const templates = isCV ? cvTemplates : resumeTemplates;
+=======
+        {id: 'ats', name: 'ATS Friendly', preview: "A clean, parser-friendly layout optimized to pass Applicant Tracking Systems." }
+];
+
+>>>>>>> e6dbd835ca97e36f3e0ad50a24fbe477fb4d783b
 
   return (
     <div className='relative'>
