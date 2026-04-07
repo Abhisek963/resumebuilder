@@ -33,7 +33,7 @@ const TemplateSelector = ({selectedTemplate, onChange, isCV = false}) => {
             <Layout size={14}/> <span className='max-sm:hidden'>Templates</span>
         </button>
         {isOpen && (
-            <div className='absolute top-full w-xs p-3 mt-2 space-y-3 z-10 bg-white rounded-md border border-gray-200 shadow-sm'>
+            <div className='absolute top-full w-xs max-h-80 overflow-y-auto p-3 mt-2 space-y-3 z-10 bg-white rounded-md border border-gray-200 shadow-sm'>
                 {templates.map((template)=>(
                     <div key={template.id} onClick={()=>{onChange(template.id); setIsOpen(false)}} className={`relative p-3 border rounded-md cursor-pointer transition-all ${selectedTemplate === template.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'}`}>{selectedTemplate === template.id && (
                         <div className='absolute top-2 right-2'>
