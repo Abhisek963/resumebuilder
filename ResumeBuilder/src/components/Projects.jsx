@@ -5,10 +5,24 @@ const Projects = ({data=[],onChange}) => {
 
 
     const addProjects =() =>{
-        const newProjects ={
+        const newProject = {
             name: "",
             type: "",
             url: "",
+            description: ""
+        };
+        onChange([...data, newProject]);
+    };
+
+    const removeProjects = (index) => {
+        onChange(data.filter((_, i) => i !== index));
+    };
+
+    const updateProjects = (index, field, value) => {
+        const newData = [...data];
+        newData[index] = { ...newData[index], [field]: value };
+        onChange(newData);
+    };
   return (
         <div>
       <div className='flex items-center justify-between'>

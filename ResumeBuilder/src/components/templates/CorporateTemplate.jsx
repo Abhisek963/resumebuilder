@@ -86,6 +86,102 @@ const CorporateTemplate = ({ data, accentColor }) => {
             </div>
           )}
 
+          {/* Skills */}
+          {data.skills?.length > 0 && (
+            <div>
+              <h2 className="text-xs uppercase tracking-[0.25em] text-zinc-400 mb-6">
+                Core Skills
+              </h2>
+
+              <div className="space-y-2 text-sm">
+                {data.skills.map((skill, i) => (
+                  <div key={i}>{skill}</div>
+                ))}
+              </div>
+            </div>
+          )}
+        </aside>
+
+        {/* ===== MAIN ===== */}
+        <main className="col-span-2 p-14">
+
+          {/* PROFILE */}
+          {data.professional_summary && (
+            <section className="mb-14">
+              <h2
+                className="text-xs uppercase tracking-[0.3em] font-semibold mb-6"
+                style={{ color: accentColor }}
+              >
+                Profile
+              </h2>
+
+              <p className="text-sm leading-relaxed text-zinc-700">
+                {data.professional_summary}
+              </p>
+            </section>
+          )}
+
+          {/* EXPERIENCE */}
+          {data.experience?.length > 0 && (
+            <section className="mb-14">
+              <h2
+                className="text-xs uppercase tracking-[0.3em] font-semibold mb-8"
+                style={{ color: accentColor }}
+              >
+                Professional Experience
+              </h2>
+
+              <div className="space-y-12">
+                {data.experience.map((exp, i) => (
+                  <div key={i}>
+
+                    <div className="flex justify-between">
+                      <div>
+                        <h3 className="text-lg font-semibold">
+                          {exp.position}
+                        </h3>
+
+                        <p className="text-sm text-zinc-500 mt-1">
+                          {exp.company}
+                        </p>
+                      </div>
+
+                      <span className="text-xs text-zinc-400">
+                        {formatDate(exp.start_date)} ΓÇö{" "}
+                        {exp.is_current
+                          ? "Present"
+                          : formatDate(exp.end_date)}
+                      </span>
+                    </div>
+
+                    {exp.description && (
+                      <p className="mt-4 text-sm leading-relaxed text-zinc-700 whitespace-pre-line">
+                        {exp.description}
+                      </p>
+                    )}
+
+                    <div className="h-px bg-zinc-200 mt-10" />
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* PROJECTS */}
+          {data.projects?.length > 0 && (
+            <section className="mb-14">
+              <h2
+                className="text-xs uppercase tracking-[0.3em] font-semibold mb-8"
+                style={{ color: accentColor }}
+              >
+                Projects
+              </h2>
+
+              <div className="space-y-10">
+                {data.projects.map((proj, i) => (
+                  <div key={i}>
+                    <h3 className="text-lg font-semibold">
+                      {proj.name}{proj.url && <a href={proj.url} target="_blank" rel="noreferrer" className="ml-2 text-blue-600 underline font-normal tracking-normal" style={{ fontSize: "0.85em", textTransform: "none" }}>Link</a>}
                     </h3>
 
                     {proj.type && (

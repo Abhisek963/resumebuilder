@@ -47,8 +47,42 @@ const DashBoard = () => {
   const [editResume, setEditResume] = useState('')
   const [loading, setLoading] = useState(false)
   const [deleteConfirmId, setDeleteConfirmId] = useState(null)
+  const navigate = useNavigate();
+
+  const loadAllResumes = async () => {
+    try {
+      const { data } = await api.get('/api/users/resumes');
+      setAllResumes(data.resumes);
+    } catch (error) {
+      console.error(error);
+      toast.error(error?.response?.data?.message || error.message);
+    }
+  };
+
+  const createResume = async (e) => {
+    try {
+      e.preventDefault();
+      const { data } = await api.post('/api/resumes/create', { title });
+      setAllResumes([...allResumes, data.resume]);
+      setTitle("");
+      setShowCreateResumes(false);
+      navigate(`/app/builder/${data.resume._id}`);
+    } catch (error) {
+      toast.error(error?.response?.data?.message || error.message);
+    }
+  };
+
+  const uploadResume = async (e) => {
+    e.preventDefault();
+    if (!resume) {
+      toast.error('Please select a resume PDF file to upload.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const resumeText = await pdfToText(resume);
       const encodedResumeText = encodeURIComponent(resumeText);
-      const { data } = await api.post('/api/ai/upload-resume', { title, resumeText: encodedResumeText })
+      const { data } = await api.post('/api/ai/upload-resume', { title, resumeText: encodedResumeText });
       if (data.warning) {
         toast.error(data.warning, { duration: 6000 });
       }
@@ -64,7 +98,7 @@ const DashBoard = () => {
         toast.error(errorMsg);
       }
     }
-    setLoading(false)
+    setLoading(false);
   }
 
   const editTitle = async (e) => {
