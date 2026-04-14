@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { dummyResumeData } from '../assets/assets'
 import {
   ArrowLeftIcon, Award, BadgeCheck, BookMarked, BookOpen,
   Briefcase, ChevronLeft, ChevronRight, DownloadIcon,
@@ -25,9 +24,9 @@ import CVCertifications from '../components/cv/CVCertifications'
 import CVPublications from '../components/cv/CVPublications'
 import CVPositions from '../components/cv/CVPositions'
 
-import { useSelector } from 'react-redux'
-import api from "../configs/api"
+import * as resumeService from '../services/resumeService'
 import { toast } from 'react-hot-toast'
+import BuilderSkeleton from '../components/BuilderSkeleton'
 
 
 const ResumeBuilder = () => {
@@ -59,6 +58,7 @@ const ResumeBuilder = () => {
 
   const [activeSectionIndex, setActiveSectionIndex] = useState(0)
   const [removeSection, setRemoveSection] = useState(false)
+  const [pageLoading, setPageLoading] = useState(true)
 
   const isCV = resumeData.mode === 'cv'
 
@@ -86,8 +86,9 @@ const ResumeBuilder = () => {
 
   // ─── Data loading ─────────────────────────────────────────────────────────
   const loadExistingResume = async (id) => {
+    setPageLoading(true)
     try {
-      const { data } = await api.get('/api/resumes/get/' + id)
+      const { data } = await resumeService.getResume(id)
       if (data.resume) {
         setResumeData({
           // ensure new CV fields have defaults even on old documents
@@ -99,7 +100,14 @@ const ResumeBuilder = () => {
         document.title = data.resume.title
       }
     } catch (error) {
-      console.log("Error loading resume: ", error.message)
+      if (!error.response) {
+        toast.error('Could not reach the server. Check your connection and refresh.', { duration: 5000 })
+      } else {
+        console.error('[ResumeBuilder] loadExistingResume:', error.message)
+        toast.error(error?.response?.data?.message || 'Failed to load resume.')
+      }
+    } finally {
+      setPageLoading(false)
     }
   }
 
@@ -123,11 +131,11 @@ const ResumeBuilder = () => {
       const formData = new FormData()
       formData.append('resumeId', resumeId)
       formData.append("resumeData", JSON.stringify({ public: !resumeData.public }))
-      await api.put('/api/resumes/update', formData)
+      await resumeService.updateResume(formData)
       setResumeData(prev => ({ ...prev, public: !prev.public }))
       toast.success("Visibility updated!")
-    } catch {
-      console.error("Failed to update visibility.")
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to update visibility.")
     }
   }
 
@@ -142,26 +150,37 @@ const ResumeBuilder = () => {
   const downloadResume = () => window.print()
 
   const saveResume = async () => {
-    let updated = structuredClone(resumeData)
-    if (typeof resumeData.personal_info.image === 'object') {
-      delete updated.personal_info.image
-    }
-    const formData = new FormData()
-    formData.append('resumeId', resumeId)
-    formData.append("resumeData", JSON.stringify(updated))
-    removeSection && formData.append('removeBackground', 'yes')
-    typeof resumeData.personal_info.image === 'object' &&
-      formData.append('image', resumeData.personal_info.image)
+    try {
+      let updated = structuredClone(resumeData)
+      if (typeof resumeData.personal_info.image === 'object') {
+        delete updated.personal_info.image
+      }
+      const formData = new FormData()
+      formData.append('resumeId', resumeId)
+      formData.append("resumeData", JSON.stringify(updated))
+      removeSection && formData.append('removeBackground', 'yes')
+      typeof resumeData.personal_info.image === 'object' &&
+        formData.append('image', resumeData.personal_info.image)
 
-    const { data } = await api.put('/api/resumes/update', formData)
-    setResumeData({
-      coursework: [], achievements: [], certifications: [],
-      publications: [], positions: [], mode: 'resume',
-      font_family: "Arial", font_size: "standard",
-      ...data.resume,
-    })
-    toast.success(data.message)
+      const { data } = await resumeService.updateResume(formData)
+      setResumeData({
+        coursework: [], achievements: [], certifications: [],
+        publications: [], positions: [], mode: 'resume',
+        font_family: "Arial", font_size: "standard",
+        ...data.resume,
+      })
+      toast.success(data.message)
+    } catch (error) {
+      const msg = !error.response
+        ? 'Network error — changes could not be saved.'
+        : error?.response?.data?.message || 'Save failed. Please try again.'
+      toast.error(msg)
+      throw error // re-throw so toast.promise shows 'error' state
+    }
   }
+
+  // ── Render guard ──────────────────────────────────────────────────────────
+  if (pageLoading) return <BuilderSkeleton />
 
   return (
     <div>

@@ -3,145 +3,231 @@ import Resume from "../models/Resume.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import { Resend } from "resend";
+import { sendOtpEmail } from "../configs/mailer.js";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-const generateToken = (userID) => {
-  return jwt.sign({ userID }, process.env.JWT_SECRET, { expiresIn: "7d" });
-};
+const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v).trim());
+
+const generateToken = (userID) =>
+  jwt.sign({ userID }, process.env.JWT_SECRET, { expiresIn: "7d" });
+
+const safeUser = (u) => ({ _id: u._id, name: u.name, email: u.email });
+
+// ── Register ──────────────────────────────────────────────────────────────────
 
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: "Please provide name, email and password" });
+
+    // Validate inputs
+    if (!name?.trim() || !email?.trim() || !password) {
+      return res.status(400).json({ message: "Please provide name, email and password." });
     }
-    const existingUser = await User.findOne({ email });
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ message: "Please provide a valid email address." });
+    }
+    if (password.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters." });
+    }
+
+    const existingUser = await User.findOne({ email: email.trim().toLowerCase() });
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists with this email" });
+      return res.status(400).json({ message: "An account with this email already exists." });
     }
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await User.create({ name, email, password: hashedPassword });
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const newUser = await User.create({
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      password: hashedPassword,
+    });
+
     const token = generateToken(newUser._id);
     return res.status(201).json({
-      message: "User registered successfully",
-      user: { _id: newUser._id, name: newUser.name, email: newUser.email },
-      token
+      message: "Account created successfully!",
+      user: safeUser(newUser),
+      token,
     });
   } catch (error) {
-    return res.status(400).json({ message: error.message });
+    console.error("[registerUser]", error);
+    return res.status(500).json({ message: "Registration failed. Please try again." });
   }
 };
+
+// ── Login ─────────────────────────────────────────────────────────────────────
 
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ message: "Please provide email and password" });
+
+    if (!email?.trim() || !password) {
+      return res.status(400).json({ message: "Please provide email and password." });
     }
-    const existingUser = await User.findOne({ email });
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ message: "Please provide a valid email address." });
+    }
+
+    const existingUser = await User.findOne({ email: email.trim().toLowerCase() });
     if (!existingUser) {
-      return res.status(400).json({ message: "User does not exist with this email" });
+      // Generic message prevents email enumeration
+      return res.status(401).json({ message: "Invalid email or password." });
     }
+
     const isPasswordValid = await bcrypt.compare(password, existingUser.password);
     if (!isPasswordValid) {
-      return res.status(400).json({ message: "Invalid password" });
+      return res.status(401).json({ message: "Invalid email or password." });
     }
+
     const token = generateToken(existingUser._id);
     return res.status(200).json({
-      message: "User logged in successfully",
-      user: { _id: existingUser._id, name: existingUser.name, email: existingUser.email },
-      token
+      message: "Logged in successfully!",
+      user: safeUser(existingUser),
+      token,
     });
   } catch (error) {
-    return res.status(400).json({ message: error.message });
+    console.error("[loginUser]", error);
+    return res.status(500).json({ message: "Login failed. Please try again." });
   }
 };
+
+// ── Get user by ID ────────────────────────────────────────────────────────────
 
 export const getUserById = async (req, res) => {
   try {
-    const foundUser = await User.findById(req.userID).select("-password");
+    const foundUser = await User.findById(req.userID).select("-password -resetOtp -resetOtpExpiry -otpAttempts");
     if (!foundUser) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "User not found." });
     }
-    return res.status(200).json({ message: "User details fetched successfully", user: foundUser });
+    return res.status(200).json({ message: "User data fetched.", user: foundUser });
   } catch (error) {
-    return res.status(400).json({ message: error.message });
+    console.error("[getUserById]", error);
+    return res.status(500).json({ message: "Failed to fetch user data." });
   }
 };
+
+// ── Get user's resumes ────────────────────────────────────────────────────────
 
 export const getUserResumes = async (req, res) => {
   try {
-    const resumes = await Resume.find({ userId: req.userID });
-    return res.status(200).json({ message: "User resume fetched successfully", resumes });
+    const resumes = await Resume.find({ userId: req.userID }).sort({ updatedAt: -1 });
+    return res.status(200).json({ message: "Resumes fetched.", resumes });
   } catch (error) {
-    return res.status(400).json({ message: error.message });
+    console.error("[getUserResumes]", error);
+    return res.status(500).json({ message: "Failed to fetch resumes." });
   }
 };
+
+// ── Forgot Password ───────────────────────────────────────────────────────────
 
 export const forgotPassword = async (req, res) => {
-  const { email } = req.body;
   try {
-    if (!email) {
-      return res.status(400).json({ message: "Email is required" });
+    const { email } = req.body;
+
+    if (!email?.trim()) {
+      return res.status(400).json({ message: "Email is required." });
     }
-    const user = await User.findOne({ email });
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ message: "Please provide a valid email address." });
+    }
+
+    const user = await User.findOne({ email: email.trim().toLowerCase() });
+
+    // Always return 200 — don't reveal whether the email exists (prevents enumeration)
     if (!user) {
-      return res.status(200).json({ message: "If this email exists, an OTP has been sent." });
+      return res.status(200).json({ message: "If this email is registered, an OTP has been sent." });
     }
+
+    // Generate a cryptographically secure 6-digit OTP
     const otp = crypto.randomInt(100000, 999999).toString();
+
+    // Invalidate any previous OTP and start fresh
     user.resetOtp = otp;
-    user.resetOtpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+    user.resetOtpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    user.otpAttempts = 0;
     await user.save();
-    await resend.emails.send({
-      from: 'Resume Builder <onboarding@resend.dev>',
-      to: email,
-      subject: "Your Password Reset OTP",
-      html: `
-        <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#f9fafb;border-radius:12px;">
-          <h2 style="color:#111;margin-bottom:8px;">Reset Your Password</h2>
-          <p style="color:#555;margin-bottom:24px;">Use the OTP below to reset your password. It expires in <strong>10 minutes</strong>.</p>
-          <div style="background:#874ff8;color:white;font-size:32px;font-weight:700;letter-spacing:0.3em;text-align:center;padding:20px;border-radius:10px;margin-bottom:24px;">
-            ${otp}
-          </div>
-          <p style="color:#888;font-size:13px;">If you did not request this, you can safely ignore this email.</p>
-        </div>
-      `
-    });
+
+    // Send email
+    // Send OTP email via Nodemailer (Gmail)
+    try {
+      await sendOtpEmail(email.trim(), otp);
+    } catch (emailErr) {
+      // Rollback OTP if email fails so user can try again cleanly
+      user.clearOtp();
+      await user.save();
+      console.error("[forgotPassword] Email send failed:", emailErr.message);
+      return res.status(500).json({
+        message: "Failed to send OTP email. Please check your email address and try again.",
+      });
+    }
+
     return res.status(200).json({ message: "OTP sent to your email!" });
   } catch (error) {
-    console.error("forgotPassword error:", error);
-    return res.status(500).json({ message: "Something went wrong. Please try again." });
+    console.error("[forgotPassword]", error);
+    return res.status(500).json({ message: "Failed to send OTP. Please try again." });
   }
 };
 
+// ── Reset Password ────────────────────────────────────────────────────────────
+
 export const resetPassword = async (req, res) => {
-  const { email, otp, newPassword } = req.body;
   try {
-    if (!email || !otp || !newPassword) {
-      return res.status(400).json({ message: "All fields are required" });
+    const { email, otp, newPassword } = req.body;
+
+    if (!email?.trim() || !otp?.trim() || !newPassword) {
+      return res.status(400).json({ message: "All fields are required." });
     }
-    const user = await User.findOne({ email });
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ message: "Invalid email address." });
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters." });
+    }
+
+    const user = await User.findOne({ email: email.trim().toLowerCase() });
+
     if (!user || !user.resetOtp) {
-      return res.status(400).json({ message: "Invalid or expired OTP" });
+      return res.status(400).json({ message: "Invalid or expired OTP. Please request a new one." });
     }
-    if (user.resetOtp !== otp) {
-      return res.status(400).json({ message: "Incorrect OTP" });
-    }
+
+    // Check expiry first (don't reveal the OTP is correct when expired)
     if (new Date() > user.resetOtpExpiry) {
-      user.resetOtp = null;
-      user.resetOtpExpiry = null;
+      user.clearOtp();
       await user.save();
       return res.status(400).json({ message: "OTP has expired. Please request a new one." });
     }
-    user.password = await bcrypt.hash(newPassword, 10);
-    user.resetOtp = null;
-    user.resetOtpExpiry = null;
+
+    // Track brute-force attempts
+    if ((user.otpAttempts ?? 0) >= 5) {
+      user.clearOtp();
+      await user.save();
+      return res.status(429).json({ message: "Too many failed attempts. Please request a new OTP." });
+    }
+
+    // Timing-safe OTP comparison
+    const otpBuffer      = Buffer.from(otp.trim().padEnd(6), "utf8");
+    const storedBuffer   = Buffer.from(user.resetOtp.padEnd(6), "utf8");
+    const match          = crypto.timingSafeEqual(otpBuffer, storedBuffer);
+
+    if (!match) {
+      user.otpAttempts = (user.otpAttempts ?? 0) + 1;
+      await user.save();
+      const remaining = 5 - user.otpAttempts;
+      return res.status(400).json({
+        message: remaining > 0
+          ? `Incorrect OTP. ${remaining} attempt${remaining !== 1 ? "s" : ""} remaining.`
+          : "Too many failed attempts. Please request a new OTP.",
+      });
+    }
+
+    // ── All checks passed — reset password ──────────────────────────────────
+    user.password = await bcrypt.hash(newPassword, 12);
+    user.clearOtp(); // Invalidate the OTP so it can't be reused
     await user.save();
+
     return res.status(200).json({ message: "Password reset successfully! You can now log in." });
   } catch (error) {
-    console.error("resetPassword error:", error);
-    return res.status(500).json({ message: "Something went wrong. Please try again." });
+    console.error("[resetPassword]", error);
+    return res.status(500).json({ message: "Password reset failed. Please try again." });
   }
 };

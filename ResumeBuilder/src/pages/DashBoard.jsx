@@ -3,9 +3,11 @@ import React, { useEffect } from 'react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import api from '../configs/api';
 import { toast } from 'react-hot-toast';
 import pdfToText from 'react-pdftotext';
+import * as resumeService from '../services/resumeService';
+import DashboardSkeleton from '../components/DashboardSkeleton';
+import NetworkError from '../components/ui/NetworkError';
 
 const ModalWrapper = ({ onClose, onSubmit, children }) => (
   <form onSubmit={onSubmit} onClick={onClose}
@@ -46,29 +48,40 @@ const DashBoard = () => {
   const [resume, setResume] = useState(null)
   const [editResume, setEditResume] = useState('')
   const [loading, setLoading] = useState(false)
+  const [pageLoading, setPageLoading] = useState(true)
+  const [networkError, setNetworkError] = useState(false)
   const [deleteConfirmId, setDeleteConfirmId] = useState(null)
   const navigate = useNavigate();
 
   const loadAllResumes = async () => {
+    setPageLoading(true);
+    setNetworkError(false);
     try {
-      const { data } = await api.get('/api/users/resumes');
+      const { data } = await resumeService.getAllResumes();
       setAllResumes(data.resumes);
     } catch (error) {
-      console.error(error);
-      toast.error(error?.response?.data?.message || error.message);
+      if (!error.response) {
+        // Backend unreachable (Render cold start, network down, etc.)
+        setNetworkError(true);
+      } else {
+        console.error('[Dashboard] loadAllResumes:', error);
+        toast.error(error?.response?.data?.message || error.message);
+      }
+    } finally {
+      setPageLoading(false);
     }
   };
 
   const createResume = async (e) => {
     try {
       e.preventDefault();
-      const { data } = await api.post('/api/resumes/create', { title });
+      const { data } = await resumeService.createResume(title);
       setAllResumes([...allResumes, data.resume]);
       setTitle("");
       setShowCreateResumes(false);
       navigate(`/app/builder/${data.resume._id}`);
     } catch (error) {
-      toast.error(error?.response?.data?.message || error.message);
+      toast.error(error?.response?.data?.message || error.message || 'Failed to create resume.');
     }
   };
 
@@ -82,7 +95,7 @@ const DashBoard = () => {
     try {
       const resumeText = await pdfToText(resume);
       const encodedResumeText = encodeURIComponent(resumeText);
-      const { data } = await api.post('/api/ai/upload-resume', { title, resumeText: encodedResumeText });
+      const { data } = await resumeService.uploadResumePdf(title, encodedResumeText);
       if (data.warning) {
         toast.error(data.warning, { duration: 6000 });
       }
@@ -92,37 +105,43 @@ const DashBoard = () => {
       navigate(`/app/builder/${data.resume._id}`)
     } catch (error) {
       const errorMsg = error?.response?.data?.message || error?.response?.data?.error || error.message;
-      if (errorMsg && errorMsg.includes("403 status code")) {
+      if (!error.response) {
+        toast.error('Network error — could not reach the server. Please try again.');
+      } else if (errorMsg && errorMsg.includes("403 status code")) {
         toast.error("AI API Error: Your backend AI API Key is invalid or expired. Please check your Render environment variables.");
       } else {
-        toast.error(errorMsg);
+        toast.error(errorMsg || 'Upload failed. Please try again.');
       }
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   const editTitle = async (e) => {
     try {
       e.preventDefault()
-      const { data } = await api.put(`/api/resumes/update/`, { resumeId: editResume, resumeData: { title } })
+      const formData = new FormData()
+      formData.append('resumeId', editResume)
+      formData.append('resumeData', JSON.stringify({ title }))
+      const { data } = await resumeService.updateResume(formData)
       setAllResumes(allResumes.map(resume => resume._id === editResume ? { ...resume, title } : resume))
       setTitle("")
       setEditResume('')
       toast.success(data.message)
     } catch (error) {
-      toast.error(error?.response?.data?.message || error.message)
+      toast.error(error?.response?.data?.message || error.message || 'Failed to rename resume.')
     }
   }
 
   const deleteResume = async (resumeId) => {
     try {
-      const { data } = await api.delete(`/api/resumes/delete/${resumeId}`)
+      const { data } = await resumeService.deleteResume(resumeId)
       setAllResumes(allResumes.filter(resume => resume._id !== resumeId))
       setDeleteConfirmId(null)
       toast.success(data.message)
     } catch (error) {
       setDeleteConfirmId(null)
-      toast.error(error?.response?.data?.message || error.message)
+      toast.error(error?.response?.data?.message || error.message || 'Failed to delete resume.')
     }
   }
 
@@ -142,6 +161,14 @@ const DashBoard = () => {
     if (h < 17) return 'Good afternoon';
     return 'Good evening';
   };
+
+  // ── Render guards ────────────────────────────────────────────────────────
+  if (pageLoading) return <DashboardSkeleton />
+  if (networkError) return (
+    <div className="min-h-screen" style={{ background: '#0a0914' }}>
+      <NetworkError onRetry={loadAllResumes} />
+    </div>
+  )
 
   return (
     <>
